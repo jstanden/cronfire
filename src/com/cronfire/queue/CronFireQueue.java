@@ -25,11 +25,17 @@ public class CronFireQueue {
 	private CronFireQueue() { /* No instantiation */ }
 	
 	public void add(EndpointUrl endpoint) {
-		queue.add(endpoint);
+		if(!queue.contains(endpoint)) {
+			queue.add(endpoint);
+		}
 	}
 	
 	public Iterator<EndpointUrl> iterator() {
 		return queue.iterator();
+	}
+	
+	public boolean isPaused() {
+		return this.isPaused;
 	}
 	
 	public void pause(boolean b) {

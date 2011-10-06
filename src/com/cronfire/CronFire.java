@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import com.cronfire.endpoint.EndpointUrl;
@@ -52,9 +53,30 @@ public class CronFire {
 					
 				} else if(input.equalsIgnoreCase("list")) {
 					// [TODO] sort
-					for(Iterator<EndpointUrl> i = queue.iterator(); i.hasNext(); ) {
-						EndpointUrl endpoint = i.next();
-						System.out.println("* " + endpoint.getUrl() + " [" + endpoint.getDelay(TimeUnit.SECONDS) + "s] " + endpoint.getAverageRuntime() + "ms (n=" + endpoint.getRunCount() + ")");
+					
+					for(Iterator<Entry<String,EndpointUrl>> i = CronFireSettings.getEndpoints().entrySet().iterator(); i.hasNext(); ) {
+						Entry<String,EndpointUrl> entry = i.next();
+						EndpointUrl endpoint = entry.getValue();
+						
+						String url = endpoint.getUrl();
+						
+						// Strip query args // [TODO] Verbose
+						if(-1 != url.lastIndexOf("?"))
+							url = url.substring(0,url.lastIndexOf("?"));
+						
+						System.out.print("* " + url);
+						
+						if(endpoint.isRunning()) {
+							System.out.print(" [running] ");
+						} else if(queue.isPaused()) {
+							System.out.print(" [paused] ");
+						} else {
+							System.out.print(" [" + endpoint.getDelay(TimeUnit.SECONDS) + "s] "); 
+						}
+						
+						System.out.print(endpoint.getAverageRuntime() + "ms (n=" + endpoint.getRunCount() + ")");
+						
+						System.out.println();
 					}
 					
 					

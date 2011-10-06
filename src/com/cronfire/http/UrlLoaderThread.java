@@ -12,13 +12,13 @@ public class UrlLoaderThread {
 	public void pingUrl(final EndpointUrl endpoint) {
 		new Thread(new Runnable() {
 			public void run() {
+				endpoint.setRunning(true);
 				CronFireQueue queue = CronFireQueue.getInstance();
 				try {
 					long startTime = System.currentTimeMillis();
 					
 					String url = endpoint.getUrl();
 					
-					// [TODO] handle query params
 					URLConnection connection = new URL(url).openConnection();
 					
 					//System.out.println("Starting: " + url);
@@ -47,6 +47,8 @@ public class UrlLoaderThread {
 				} catch(Exception e) {
 					e.printStackTrace();
 				}
+				
+				endpoint.setRunning(false);
 			}
 		}).start();
 	}

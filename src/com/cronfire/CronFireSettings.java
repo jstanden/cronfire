@@ -20,6 +20,7 @@ import com.cronfire.settings.EndpointPath;
 import com.cronfire.settings.EndpointProfile;
 
 public class CronFireSettings {
+	private static HashMap<String, EndpointUrl> endpoints = new HashMap<String, EndpointUrl>(); 
 	private static HashMap<String, String> settings = new HashMap<String, String>();
 	private static HashMap<String, EndpointProfile> profiles = new HashMap<String, EndpointProfile>();
 	
@@ -69,6 +70,10 @@ public class CronFireSettings {
 	
 	public static void setSetting(String key, String value) {
 		settings.put(key, value);
+	}
+	
+	public static HashMap<String, EndpointUrl> getEndpoints() {
+		return endpoints;
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -184,7 +189,15 @@ public class CronFireSettings {
 							if(suffix.startsWith("/"))
 								suffix = suffix.substring(1);
 								
-							EndpointUrl endpoint = new EndpointUrl(url + suffix);
+							EndpointUrl endpoint;
+							
+							if(endpoints.containsKey(url + path.getKey())) {
+								endpoint = endpoints.get(url + path.getKey());
+								endpoint.setUrl(url + suffix);
+							} else {
+								endpoint = new EndpointUrl(url + suffix);
+							}
+							
 							endpoint.setCooldownSecs(path.getDelay());
 							
 							// [TODO] Check 'start'
@@ -194,6 +207,8 @@ public class CronFireSettings {
 							// ...
 							
 							//System.out.println("Added URL: " + url);
+							
+							endpoints.put(url + path.getKey(), endpoint);
 							
 							queue.add(endpoint);
 						}

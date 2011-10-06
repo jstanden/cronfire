@@ -9,6 +9,7 @@ public class EndpointUrl implements Delayed {
 	
 	private String url;
 	private int cooldownSecs = 60;
+	private boolean isRunning = false;
 	
 	private long cumulativeHits = 0L;
 	private long cumulativeRuntimeMs = 0L;
@@ -21,6 +22,18 @@ public class EndpointUrl implements Delayed {
 	public EndpointUrl(String url) {
 		this.url = url;
 		this.dateTime = new Date();
+	}
+	
+	public void setRunning(boolean b) {
+		this.isRunning = b;
+	}
+	
+	public boolean isRunning() {
+		return this.isRunning;
+	}
+	
+	public void setUrl(String url) {
+		this.url = url;
 	}
 	
 	public String getUrl() {
