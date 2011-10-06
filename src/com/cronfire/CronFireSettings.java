@@ -197,6 +197,7 @@ public class CronFireSettings {
 							if(endpoints.containsKey(url + path.getKey())) {
 								endpoint = endpoints.get(url + path.getKey());
 								endpoint.setUrl(url + suffix);
+								queue.remove(endpoint); // we may reschedule
 							} else {
 								endpoint = new EndpointUrl(url + suffix);
 							}
@@ -204,7 +205,8 @@ public class CronFireSettings {
 							endpoint.setInterval(path.getInterval());
 							
 							// Default to scheduling by delay into future
-							endpoint.delayBySecs(endpoint.getNextIntervalAsSecs());
+							int secs = endpoint.getNextIntervalAsSecs();
+							endpoint.delayBySecs(secs);
 							
 							// [TODO] Max
 							// ...

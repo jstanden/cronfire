@@ -107,7 +107,10 @@ public class CronFire {
 					System.out.println("Resumed.");
 					
 				} else if(input.equalsIgnoreCase("stats")) {
-					System.out.println("Threads: " + Thread.activeCount());
+					int maxThreads = CronFireSettings.getSettingInt("max_http_threads", 10);
+					int numThreads = Thread.activeCount() - 3; // Compensate for built-in
+					
+					System.out.println("Threads: " + numThreads + " / " + maxThreads);
 					
 				} else if(input.equalsIgnoreCase("quit") || input.equalsIgnoreCase("exit")) {
 					

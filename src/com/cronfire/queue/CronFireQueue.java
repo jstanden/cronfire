@@ -61,24 +61,27 @@ public class CronFireQueue {
 							Thread.sleep(500L);
 							continue;
 						}
-						
-						EndpointUrl endpoint = queue.take();
-						
-						// [TODO] Check the current load
-						double loadAvg = loadManager.getCurrentLoad();
-						//System.out.println("Load Check: " + loadAvg);
 
-						// [TODO] Reschedule (if load high or non parallel)
-						if(loadAvg > CronFireSettings.getSettingDouble("loadavg_throttle", 5.0)) {
-							//System.out.println("Load too high, rescheduling");
-							
-							endpoint.delayBySecs(30);
-							queue.add(endpoint);
-
-						// Process it
-						} else {
-							new UrlLoaderThread().pingUrl(endpoint);
+						double loadAvg = loadManager.getCurrentLoad();						
+						
+						// Check the thread cap
+						int maxThreads = CronFireSettings.getSettingInt("max_http_threads", 10);
+						int numThreads = Thread.activeCount() - 3; // Compensate for built-in
+						
+						if(numThreads >= maxThreads) {
+							Thread.sleep(500L);
+							continue;
 						}
+						
+						// Check the current load
+						if(loadAvg > CronFireSettings.getSettingDouble("loadavg_throttle", 5.0)) {
+							Thread.sleep(500L);
+							continue;
+						}
+						
+						// Otherwise, process the next element when ready
+						EndpointUrl endpoint = queue.take();
+						new UrlLoaderThread().pingUrl(endpoint);
 						
 					} catch (Exception e) {
 						e.printStackTrace();
