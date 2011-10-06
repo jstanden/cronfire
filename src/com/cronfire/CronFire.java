@@ -66,7 +66,10 @@ public class CronFire {
 					loadFormatter = DecimalFormat.getNumberInstance();
 					loadFormatter.setMaximumFractionDigits(2);
 					
-					System.out.println("Current Load: " + loadFormatter.format(loadavg.getCurrentLoad()));
+					System.out.println(
+						"Current Load: " + loadFormatter.format(loadavg.getCurrentLoad()) 
+						+ " (throttle: " + CronFireSettings.getSettingDouble("loadavg_throttle", 5.0) + ")"
+					);
 					
 				} else if(input.equalsIgnoreCase("reload")) {
 					// [TODO] Reload config and URL files (merge changes?)

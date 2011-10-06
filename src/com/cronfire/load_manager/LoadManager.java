@@ -34,7 +34,7 @@ public class LoadManager {
 						double loads[] = sigar.getLoadAverage();
 						currentLoad = loads[0];
 						
-						Thread.sleep(Integer.valueOf(CronFireSettings.getSetting("loadavg_poll_secs","0")) * 1000L);
+						Thread.sleep(CronFireSettings.getSettingInt("loadavg_poll_secs", 30) * 1000L);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

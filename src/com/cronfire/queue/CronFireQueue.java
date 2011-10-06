@@ -3,6 +3,7 @@ package com.cronfire.queue;
 import java.util.Iterator;
 import java.util.concurrent.DelayQueue;
 
+import com.cronfire.CronFireSettings;
 import com.cronfire.endpoint.EndpointUrl;
 import com.cronfire.http.UrlLoaderThread;
 import com.cronfire.load_manager.LoadManager;
@@ -45,7 +46,6 @@ public class CronFireQueue {
 				while(true) {
 					try {
 						if(isPaused) {
-							//Thread.currentThread();
 							Thread.sleep(500L);
 							continue;
 						}
@@ -57,7 +57,7 @@ public class CronFireQueue {
 						//System.out.println("Load Check: " + loadAvg);
 
 						// [TODO] Reschedule (if load high or non parallel)
-						if(loadAvg > 1.0) {
+						if(loadAvg > CronFireSettings.getSettingDouble("loadavg_throttle", 5.0)) {
 							//System.out.println("Load too high, rescheduling");
 							
 							endpoint.delayBySecs(30);

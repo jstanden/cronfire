@@ -1,8 +1,8 @@
 <cronfire>
 	<settings>
 		<setting key="max_http_threads">1</setting>
-		<setting key="loadavg_throttle">1.0</setting>
-		<setting key="loadavg_poll_secs">20</setting>
+		<setting key="loadavg_throttle">2.0</setting>
+		<setting key="loadavg_poll_secs">30</setting>
 	</settings>
 
 	<profile tag="defaults" default="yes">
