@@ -88,6 +88,7 @@ public class CronFire {
 					System.out.println("Resumed.");
 					
 				} else if(input.equalsIgnoreCase("stats")) {
+					System.out.println("Threads: " + Thread.activeCount());
 					
 				} else if(input.equalsIgnoreCase("quit") || input.equalsIgnoreCase("exit")) {
 					
