@@ -1,0 +1,4 @@
+http://localhost/cerb5/
+#http://localhost/cerb5/example1/	slow
+#http://localhost/cerb5/example2/	maint8pm
+#http://localhost/cerb5/example3/	priority
