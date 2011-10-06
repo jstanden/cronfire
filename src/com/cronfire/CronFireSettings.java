@@ -37,6 +37,36 @@ public class CronFireSettings {
 		return defaultValue;
 	}
 	
+	public static int getSettingInt(String key, int defaultValue) {
+		int val = 0;
+		
+		if(settings.containsKey(key)) {
+			try {
+				val = Integer.valueOf(settings.get(key)).intValue();
+			} catch(Exception e) {
+				val = 0;
+				e.printStackTrace();
+			}
+		}
+		
+		return val;
+	}
+	
+	public static double getSettingDouble(String key, double defaultValue) {
+		double val = 0;
+		
+		if(settings.containsKey(key)) {
+			try {
+				val = Double.valueOf(settings.get(key)).doubleValue();
+			} catch(Exception e) {
+				val = 0;
+				e.printStackTrace();
+			}
+		}
+		
+		return val;
+	}
+	
 	public static void setSetting(String key, String value) {
 		settings.put(key, value);
 	}

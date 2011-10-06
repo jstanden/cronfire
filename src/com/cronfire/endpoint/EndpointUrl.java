@@ -46,8 +46,15 @@ public class EndpointUrl implements Delayed {
 		cumulativeRuntimeMs += ms;
 	}
 	
-	public double getAverageRuntime() {
-		return cumulativeRuntimeMs/cumulativeHits;
+	public int getAverageRuntime() {
+		if(0 == cumulativeHits)
+			return 0;
+		
+		return Math.round(cumulativeRuntimeMs/cumulativeHits);
+	}
+	
+	public long getRunCount() {
+		return cumulativeHits;
 	}
 	
 	@Override

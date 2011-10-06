@@ -26,11 +26,11 @@ public class UrlLoaderThread {
 					connection.connect();
 					
 					// [TODO] Check status code
-					//int status = ((HttpURLConnection) connection).getResponseCode();
+					@SuppressWarnings("unused")
+					int status = ((HttpURLConnection) connection).getResponseCode();
 					
 					// [TODO] Reschedule -- slow crons should be bumped in queue (keep an average)
-					long elapsedTime = System.currentTimeMillis() - startTime;
-					endpoint.logRuntime(elapsedTime);
+					endpoint.logRuntime(System.currentTimeMillis() - startTime);
 					
 					//System.out.println("Finished: " + url + " Status: " + status + " Elapsed: " + elapsedTime + "ms");
 

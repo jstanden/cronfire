@@ -54,7 +54,7 @@ public class CronFire {
 					// [TODO] sort
 					for(Iterator<EndpointUrl> i = queue.iterator(); i.hasNext(); ) {
 						EndpointUrl endpoint = i.next();
-						System.out.println("* " + endpoint.getUrl() + " [" + endpoint.getDelay(TimeUnit.SECONDS) + "s]");
+						System.out.println("* " + endpoint.getUrl() + " [" + endpoint.getDelay(TimeUnit.SECONDS) + "s] " + endpoint.getAverageRuntime() + "ms (n=" + endpoint.getRunCount() + ")");
 					}
 					
 					
