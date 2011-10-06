@@ -4,11 +4,17 @@ import java.util.Date;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
+import org.joda.time.DateTime;
+import org.joda.time.MutableDateTime;
+
+import com.cronfire.CronFireSettings;
+
 public class EndpointUrl implements Delayed {
 	private long delayUntil;
 	
 	private String url;
-	private int cooldownSecs = 60;
+	private String interval;
+	
 	private boolean isRunning = false;
 	
 	private long cumulativeHits = 0L;
@@ -39,7 +45,71 @@ public class EndpointUrl implements Delayed {
 	public String getUrl() {
 		return url;
 	}
+	
+	public String getInterval() {
+		return interval;
+	}
 
+	public void setInterval(String interval) {
+		this.interval = interval;
+	}
+
+	public Integer getNextIntervalAsSecs() {
+		Integer intervalDefault = CronFireSettings.getSettingInt("interval_default", 300);
+		
+		// If no interval is provided, use the default
+		if(null == this.interval || 0 == this.interval.length()) {
+			return intervalDefault;
+		}
+		
+		// If it's an interval of seconds, return quickly
+		if(this.interval.matches("^\\d+$")) {
+			return Integer.valueOf(this.interval);
+		}
+		
+		// ... Otherwise, we have a potential list of mixed intervals
+		// and we want to keep the earliest timestamp
+		String[] periods = this.interval.split(",");
+		Integer intervalSecs = 0;
+		
+		for(String period : periods) {
+			// Start can be in 00:00 format or a relative seconds
+			if(-1 != period.indexOf(":")) {
+				try {
+					String[] data = period.split(":");
+					
+					if(2 != data.length)
+						throw new Exception();
+					
+					MutableDateTime mdt = DateTime.now().toMutableDateTime();
+					mdt.setHourOfDay(new Integer(data[0]));
+					mdt.setMinuteOfHour(new Integer(data[1]));
+					
+					if(mdt.isBeforeNow())
+						mdt.addDays(1);
+					
+					Integer compareIntervalSecs = Long.valueOf((mdt.getMillis() - DateTime.now().getMillis()) / 1000).intValue();
+					intervalSecs = (0 == intervalSecs || compareIntervalSecs < intervalSecs) ? compareIntervalSecs : intervalSecs; 
+					
+				} catch(Exception e) {
+					intervalSecs = 0;
+				}
+				
+			} else {
+				// Secs offset
+				Integer compareIntervalSecs = Integer.valueOf(this.interval);
+				intervalSecs = (0 == intervalSecs || compareIntervalSecs < intervalSecs) ? compareIntervalSecs : intervalSecs;
+			}
+			
+		}
+		
+		if(intervalSecs > 0) {
+			return intervalSecs;
+		} else {
+			return intervalDefault;
+		}
+	}	
+	
 	@Override
 	public int compareTo(Delayed delayed) {
 		EndpointUrl endpoint = (EndpointUrl)delayed;
@@ -73,14 +143,6 @@ public class EndpointUrl implements Delayed {
 	@Override
 	public long getDelay(TimeUnit timeUnit) {
 		return timeUnit.convert(this.delayUntil - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
-	}
-
-	public int getCooldownSecs() {
-		return cooldownSecs;
-	}
-
-	public void setCooldownSecs(int cooldownSecs) {
-		this.cooldownSecs = cooldownSecs;
 	}
 	
 }

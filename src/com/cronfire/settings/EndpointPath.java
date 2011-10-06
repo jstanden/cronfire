@@ -1,11 +1,11 @@
 package com.cronfire.settings;
 
+
 public class EndpointPath {
 	private String key;
 	private String path;
-	private Integer delay;
+	private String interval;
 	private Integer max;
-	private String start;
 	
 	public EndpointPath(String key) {
 		this.key = key;
@@ -25,11 +25,12 @@ public class EndpointPath {
 		this.path = path;
 	}
 	
-	public Integer getDelay() {
-		return delay;
+	public String getInterval() {
+		return this.interval;
 	}
-	public void setDelay(Integer delay) {
-		this.delay = delay;
+	
+	public void setInterval(String interval) {
+		this.interval = interval;
 	}
 	
 	public Integer getMax() {
@@ -38,13 +39,5 @@ public class EndpointPath {
 	public void setMax(Integer max) {
 		this.max = max;
 	}
-	
-	public String getStart() {
-		return start;
-	}
-	public void setStart(String start) {
-		this.start = start;
-	}
-	
 	
 }

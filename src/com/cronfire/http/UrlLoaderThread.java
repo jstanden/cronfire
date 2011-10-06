@@ -34,7 +34,7 @@ public class UrlLoaderThread {
 					
 					//System.out.println("Finished: " + url + " Status: " + status + " Elapsed: " + elapsedTime + "ms");
 
-					endpoint.delayBySecs(endpoint.getCooldownSecs());
+					endpoint.delayBySecs(endpoint.getNextIntervalAsSecs());
 					queue.add(endpoint);
 					
 				} catch(UnknownHostException e) {

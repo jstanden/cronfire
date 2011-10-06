@@ -1,30 +1,32 @@
 <cronfire>
 	<settings>
-		<setting key="max_http_threads">1</setting>
-		<setting key="loadavg_throttle">2.0</setting>
+		<setting key="interval_default">300</setting>
 		<setting key="loadavg_poll_secs">30</setting>
+		<setting key="loadavg_throttle">2.0</setting>
+		<setting key="max_http_threads">1</setting>
 	</settings>
 
-	<profile tag="defaults" default="yes">
-		<path key="cron.parser" delay="60">cron/cron.parser?ignore_wait=1&amp;parse_max=30</path>
-		<path key="cron.pop3" delay="60">cron/cron.pop3?ignore_wait=1&amp;pop3_max=30</path>
-		<path key="cron.search" delay="120" >cron/cron.search?ignore_wait=1</path>
-		<path key="cron.maint" delay="300" max="1" start="00:00">cron/cron.maint?ignore_wait=1</path>
+	<profile tag="defaults">
+		<path key="cron.parser" interval="120" max="5">cron/cron.parser?ignore_wait=1&amp;parse_max=30</path>
+		<path key="cron.pop3" interval="120" max="5">cron/cron.pop3?ignore_wait=1&amp;pop3_max=30</path>
+		<path key="cron.search" interval="600" max="1">cron/cron.search?ignore_wait=1</path>
+		<path key="cron.maint" interval="00:00" max="1">cron/cron.maint?ignore_wait=1</path>
 	</profile>
 	
 	<profile tag="priority">
-		<path key="cron.pop3" delay="30" max="10">cron/cron.pop3?ignore_wait=1&amp;pop3_max=100</path>
+		<path key="cron.parser" interval="60">cron/cron.parser?ignore_wait=1&amp;parse_max=50</path>
+		<path key="cron.pop3" interval="60" max="10">cron/cron.pop3?ignore_wait=1&amp;pop3_max=50</path>
 	</profile>
 	
 	<profile tag="slow">
-		<path key="cron.pop3" delay="180" max="2">cron/cron.pop3?ignore_wait=1&amp;pop3_max=100</path>
+		<path key="cron.pop3" interval="180" max="2">cron/cron.pop3?ignore_wait=1&amp;pop3_max=100</path>
 	</profile>
 	
 	<profile tag="maint4am">
-		<path key="cron.maint" delay="300" max="1" start="16:00">cron/cron.maint?ignore_wait=1</path>
+		<path key="cron.maint" interval="16:00" max="1">cron/cron.maint?ignore_wait=1</path>
 	</profile>
 	
 	<profile tag="maint8pm">
-		<path key="cron.maint" delay="300" max="1" start="20:00">cron/cron.maint?ignore_wait=1</path>
+		<path key="cron.maint" interval="20:00" max="1">cron/cron.maint?ignore_wait=1</path>
 	</profile>
 </cronfire>

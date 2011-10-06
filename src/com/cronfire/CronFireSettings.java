@@ -110,19 +110,15 @@ public class CronFireSettings {
 					
 					String key = ePath.attributeValue("key");
 					
-					String sDelay = ePath.attributeValue("delay");
-					Integer delay = (sDelay != null) ? Integer.valueOf(sDelay) : 0;
+					String interval = ePath.attributeValue("interval");
 					
 					String sMax = ePath.attributeValue("max");
 					Integer max = (sMax != null) ? Integer.valueOf(sMax) : 0;
 					
-					String start = ePath.attributeValue("start");
-					
 					EndpointPath path = new EndpointPath(key);
 					path.setPath(ePath.getTextTrim());
-					path.setDelay(delay);
+					path.setInterval(interval);
 					path.setMax(max);
-					path.setStart(start);
 					
 					profile.addPath(path);
 					//System.out.println(ePath.asXML());
@@ -189,6 +185,9 @@ public class CronFireSettings {
 							Entry<String,EndpointPath> entry = i.next();
 							EndpointPath path = entry.getValue();
 							
+							// [TODO] Max
+							//path.getMax()
+							
 							String suffix = path.getPath();
 							if(suffix.startsWith("/"))
 								suffix = suffix.substring(1);
@@ -202,15 +201,13 @@ public class CronFireSettings {
 								endpoint = new EndpointUrl(url + suffix);
 							}
 							
-							endpoint.setCooldownSecs(path.getDelay());
+							endpoint.setInterval(path.getInterval());
 							
-							// [TODO] Check 'start'
-							endpoint.delayBySecs(path.getDelay());
+							// Default to scheduling by delay into future
+							endpoint.delayBySecs(endpoint.getNextIntervalAsSecs());
 							
 							// [TODO] Max
 							// ...
-							
-							//System.out.println("Added URL: " + url);
 							
 							endpoints.put(url + path.getKey(), endpoint);
 							newEndpoints.add(url + path.getKey());
@@ -219,12 +216,9 @@ public class CronFireSettings {
 						}
 					}
 					
-					// [TODO] Look up the profile and apply it to this endpoint URL
-				}
+				} // end tags
 				
-				//System.out.println("URL: " + url);
-				//System.out.println("Tokens: " + tokens);
-			}
+			} // end urls
 			
 			// Scan old endpoints and delete any that no longer exist
 			for(Iterator<Entry<String,EndpointUrl>> i = endpoints.entrySet().iterator(); i.hasNext(); ) {
