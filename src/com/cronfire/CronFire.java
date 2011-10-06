@@ -27,10 +27,7 @@ public class CronFire {
 		CronFireQueue queue = CronFireQueue.getInstance();
 		queue.start();
 		
-		// [TODO] Load up URL variations (cron.maint, cron.parser)
 		// [TODO] Relative start times (e.g. cron.maint=midnight)
-		// [TODO] Load up URLs with default reload time (cron.maint=3600, cron.pop3=60, cron.parser=60)
-		// [TODO] POP3/Parser jobs with ?max_pop3=30, etc.
 		
 		String input = "";
 		

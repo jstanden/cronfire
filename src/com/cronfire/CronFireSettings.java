@@ -6,9 +6,11 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -147,6 +149,8 @@ public class CronFireSettings {
 			FileReader fr = new FileReader(file);
 			BufferedReader br = new BufferedReader(fr);
 			
+			Set<String> newEndpoints = new HashSet<String>();
+			
 			while(br.ready()) {
 				String line = br.readLine();
 
@@ -209,6 +213,7 @@ public class CronFireSettings {
 							//System.out.println("Added URL: " + url);
 							
 							endpoints.put(url + path.getKey(), endpoint);
+							newEndpoints.add(url + path.getKey());
 							
 							queue.add(endpoint);
 						}
@@ -219,6 +224,19 @@ public class CronFireSettings {
 				
 				//System.out.println("URL: " + url);
 				//System.out.println("Tokens: " + tokens);
+			}
+			
+			// Scan old endpoints and delete any that no longer exist
+			for(Iterator<Entry<String,EndpointUrl>> i = endpoints.entrySet().iterator(); i.hasNext(); ) {
+				Entry<String,EndpointUrl> entry = i.next();
+				String key = entry.getKey();
+				EndpointUrl endpoint = entry.getValue();
+
+				// If the endpoint has been dynamically removed
+				if(!newEndpoints.contains(key)) {
+					i.remove();
+					queue.remove(endpoint);
+				}
 			}
 			
 		} catch(Exception e) {

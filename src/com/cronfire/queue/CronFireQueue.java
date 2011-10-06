@@ -30,6 +30,12 @@ public class CronFireQueue {
 		}
 	}
 	
+	public void remove(EndpointUrl endpoint) {
+		if(queue.contains(endpoint)) {
+			queue.remove(endpoint);
+		}
+	}
+	
 	public Iterator<EndpointUrl> iterator() {
 		return queue.iterator();
 	}
