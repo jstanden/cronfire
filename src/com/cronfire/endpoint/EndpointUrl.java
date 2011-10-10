@@ -8,12 +8,14 @@ import org.joda.time.DateTime;
 import org.joda.time.MutableDateTime;
 
 import com.cronfire.CronFireSettings;
+import com.cronfire.settings.EndpointPath;
 
 public class EndpointUrl implements Delayed {
 	private long delayUntil;
 	
 	private String url;
-	private String interval;
+	private EndpointPath path;
+	// [TODO] Tags
 	
 	private boolean isRunning = false;
 	
@@ -23,7 +25,6 @@ public class EndpointUrl implements Delayed {
 	private final Date dateTime;
 	
 	// [TODO] Can run parallel?
-	// [TODO] Tags
 	
 	public EndpointUrl(String url) {
 		this.url = url;
@@ -46,30 +47,32 @@ public class EndpointUrl implements Delayed {
 		return url;
 	}
 	
-	public String getInterval() {
-		return interval;
+	public EndpointPath getPath() {
+		return path;
 	}
 
-	public void setInterval(String interval) {
-		this.interval = interval;
+	public void setPath(EndpointPath path) {
+		this.path = path;
 	}
 
 	public Integer getNextIntervalAsSecs() {
 		Integer intervalDefault = CronFireSettings.getSettingInt("interval_default", 300);
 		
+		String interval = this.getPath().getInterval();
+		
 		// If no interval is provided, use the default
-		if(null == this.interval || 0 == this.interval.length()) {
+		if(null == interval || 0 == interval.length()) {
 			return intervalDefault;
 		}
 		
 		// If it's an interval of seconds, return quickly
-		if(this.interval.matches("^\\d+$")) {
-			return Integer.valueOf(this.interval);
+		if(interval.matches("^\\d+$")) {
+			return Integer.valueOf(interval);
 		}
 		
 		// ... Otherwise, we have a potential list of mixed intervals
 		// and we want to keep the earliest timestamp
-		String[] periods = this.interval.split(",");
+		String[] periods = interval.split(",");
 		Integer intervalSecs = 0;
 		
 		for(String period : periods) {
@@ -97,7 +100,7 @@ public class EndpointUrl implements Delayed {
 				
 			} else {
 				// Secs offset
-				Integer compareIntervalSecs = Integer.valueOf(this.interval);
+				Integer compareIntervalSecs = Integer.valueOf(interval);
 				intervalSecs = (0 == intervalSecs || compareIntervalSecs < intervalSecs) ? compareIntervalSecs : intervalSecs;
 			}
 			

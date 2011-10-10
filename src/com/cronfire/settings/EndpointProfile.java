@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public class EndpointProfile {
 	private String tag;
-	HashMap<String, EndpointPath> paths = new HashMap<String, EndpointPath>();
+	private HashMap<String, EndpointPath> paths = new HashMap<String, EndpointPath>();
 	
 	public EndpointProfile(String tag) {
 		this.tag = tag;

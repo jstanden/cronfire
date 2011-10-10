@@ -32,7 +32,7 @@ public class CronFire {
 		String input = "";
 		
 		// [TODO] Use scanner for token processing w/ arguments
-		while(!input.equalsIgnoreCase("quit")) {
+		while(!input.equalsIgnoreCase("quit") && !input.equalsIgnoreCase("exit")) {
 			System.out.print("> ");
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 			try {
@@ -68,14 +68,18 @@ public class CronFire {
 						} else if(queue.isPaused()) {
 							System.out.print(" [paused] ");
 						} else {
-							System.out.print(" [" + endpoint.getDelay(TimeUnit.SECONDS) + "s] "); 
+							long secs = endpoint.getDelay(TimeUnit.SECONDS);
+							
+							if(secs > 0) {
+								System.out.print(" [" + secs + "s] "); 
+							} else {
+								System.out.print(" [waiting] ");
+							}
 						}
 						
 						System.out.print(endpoint.getAverageRuntime() + "ms (n=" + endpoint.getRunCount() + ")");
-						
 						System.out.println();
 					}
-					
 					
 				} else if(input.equalsIgnoreCase("load")) {
 					LoadManager loadavg = LoadManager.getInstance();
@@ -91,8 +95,9 @@ public class CronFire {
 					);
 					
 				} else if(input.equalsIgnoreCase("reload")) {
-					// [TODO] Reload config and URL files (merge changes?)
+					// Reload config and URL files (merge changes)
 					queue.empty();
+					CronFireSettings.getPathRunningCounts().clear();
 					// [TODO] these URLs need to come from settings
 					CronFireSettings.loadConfigFile("example.config.xml");
 					CronFireSettings.loadUrls("example.urls.txt");

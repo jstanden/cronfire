@@ -5,8 +5,9 @@ import java.util.concurrent.DelayQueue;
 
 import com.cronfire.CronFireSettings;
 import com.cronfire.endpoint.EndpointUrl;
-import com.cronfire.http.UrlLoaderThread;
+import com.cronfire.http.UrlPingManager;
 import com.cronfire.load_manager.LoadManager;
+import com.cronfire.settings.EndpointPath;
 
 public class CronFireQueue {
 	static private CronFireQueue instance;
@@ -14,7 +15,7 @@ public class CronFireQueue {
 	private boolean isPaused = false;
 	private DelayQueue<EndpointUrl> queue = new DelayQueue<EndpointUrl>();
 	private LoadManager loadManager = LoadManager.getInstance();
-	
+
 	static public CronFireQueue getInstance() {
 		if(null == instance) {
 			instance = new CronFireQueue();
@@ -81,7 +82,29 @@ public class CronFireQueue {
 						
 						// Otherwise, process the next element when ready
 						EndpointUrl endpoint = queue.take();
-						new UrlLoaderThread().pingUrl(endpoint);
+
+						int max = endpoint.getPath().getMax();
+						
+						if(max > 0) {						
+							int count = CronFireSettings.getPathRunningCounts().get(endpoint.getPath().getKey()).get();
+							
+							//System.out.print(count + " / " + max + " " + endpoint.getPath().getKey() + " " + endpoint.getPath().getTag() + "... ");
+							
+							if(count >= max) {
+								endpoint.delayBySecs(Math.max(5, Math.round(endpoint.getAverageRuntime() / 1000)));
+								queue.add(endpoint);
+								continue;
+							}
+						}
+						
+						EndpointPath path = endpoint.getPath();
+						path.getRunCounter().incrementAndGet();
+						try {
+							CronFireSettings.getPathRunningCounts().get(path.getKey()).incrementAndGet();
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
+						UrlPingManager.pingUrl(endpoint);
 						
 					} catch (Exception e) {
 						e.printStackTrace();

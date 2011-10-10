@@ -1,11 +1,15 @@
 package com.cronfire.settings;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 public class EndpointPath {
 	private String key;
-	private String path;
+	private String suffix;
 	private String interval;
-	private Integer max;
+	private String tag;
+	private Integer max = 0;
+	private AtomicInteger runCounter = new AtomicInteger();
 	
 	public EndpointPath(String key) {
 		this.key = key;
@@ -18,19 +22,25 @@ public class EndpointPath {
 		this.key = key;
 	}
 	
-	public String getPath() {
-		return path;
+	public String getSuffix() {
+		return suffix;
 	}
-	public void setPath(String path) {
-		this.path = path;
+	public void setSuffix(String suffix) {
+		this.suffix = suffix;
 	}
 	
 	public String getInterval() {
 		return this.interval;
 	}
-	
 	public void setInterval(String interval) {
 		this.interval = interval;
+	}
+
+	public String getTag() {
+		return tag;
+	}
+	public void setTag(String tag) {
+		this.tag = tag;
 	}
 	
 	public Integer getMax() {
@@ -38,6 +48,10 @@ public class EndpointPath {
 	}
 	public void setMax(Integer max) {
 		this.max = max;
+	}
+	
+	public AtomicInteger getRunCounter() {
+		return runCounter;
 	}
 	
 }

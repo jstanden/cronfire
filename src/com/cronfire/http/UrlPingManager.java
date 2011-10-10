@@ -5,35 +5,36 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 
+import com.cronfire.CronFireSettings;
 import com.cronfire.endpoint.EndpointUrl;
 import com.cronfire.queue.CronFireQueue;
+import com.cronfire.settings.EndpointPath;
 
-public class UrlLoaderThread {
-	public void pingUrl(final EndpointUrl endpoint) {
+public class UrlPingManager {
+	
+	public static void pingUrl(final EndpointUrl endpoint) {
+		final CronFireQueue queue = CronFireQueue.getInstance();
+
 		new Thread(new Runnable() {
 			public void run() {
-				endpoint.setRunning(true);
-				CronFireQueue queue = CronFireQueue.getInstance();
 				try {
+					endpoint.setRunning(true);
+					
 					long startTime = System.currentTimeMillis();
 					
 					String url = endpoint.getUrl();
 					
 					URLConnection connection = new URL(url).openConnection();
 					
-					//System.out.println("Starting: " + url);
-					
 					connection.connect();
 					
-					// [TODO] Check status code
+					// [TODO] Check status code - this is used to block until the connection finishes
 					@SuppressWarnings("unused")
 					int status = ((HttpURLConnection) connection).getResponseCode();
 					
-					// [TODO] Reschedule -- slow crons should be bumped in queue (keep an average)
 					endpoint.logRuntime(System.currentTimeMillis() - startTime);
 					
-					//System.out.println("Finished: " + url + " Status: " + status + " Elapsed: " + elapsedTime + "ms");
-
+					// [TODO] Reschedule -- slow crons should be bumped in queue (keep an average)
 					endpoint.delayBySecs(endpoint.getNextIntervalAsSecs());
 					queue.add(endpoint);
 					
@@ -46,9 +47,20 @@ public class UrlLoaderThread {
 					
 				} catch(Exception e) {
 					e.printStackTrace();
+					
+				} finally {
+					endpoint.setRunning(false);
+					
+					EndpointPath path = endpoint.getPath();
+					
+					path.getRunCounter().decrementAndGet();
+					
+					try {
+						CronFireSettings.getPathRunningCounts().get(path.getKey()).decrementAndGet();
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
 				}
-				
-				endpoint.setRunning(false);
 			}
 		}).start();
 	}

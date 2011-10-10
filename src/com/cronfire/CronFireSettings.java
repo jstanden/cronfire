@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -25,6 +27,7 @@ public class CronFireSettings {
 	private static HashMap<String, EndpointUrl> endpoints = new HashMap<String, EndpointUrl>(); 
 	private static HashMap<String, String> settings = new HashMap<String, String>();
 	private static HashMap<String, EndpointProfile> profiles = new HashMap<String, EndpointProfile>();
+	private static ConcurrentHashMap<String, AtomicInteger> pathRunningCounts = new ConcurrentHashMap<String, AtomicInteger>();
 	
 	private CronFireSettings() { /* No instantiation */ }
 
@@ -78,6 +81,14 @@ public class CronFireSettings {
 		return endpoints;
 	}
 	
+	public static HashMap<String, EndpointProfile> getProfiles() {
+		return profiles;
+	}
+	
+	public static ConcurrentHashMap<String, AtomicInteger> getPathRunningCounts() {
+		return pathRunningCounts;
+	}
+	
 	@SuppressWarnings("rawtypes")
 	public static void loadConfigFile(String filename) {
 		try {
@@ -109,26 +120,24 @@ public class CronFireSettings {
 					Element ePath = (Element) i.next();
 					
 					String key = ePath.attributeValue("key");
-					
 					String interval = ePath.attributeValue("interval");
-					
 					String sMax = ePath.attributeValue("max");
-					Integer max = (sMax != null) ? Integer.valueOf(sMax) : 0;
 					
 					EndpointPath path = new EndpointPath(key);
-					path.setPath(ePath.getTextTrim());
+					path.setTag(tag);
+					path.setSuffix(ePath.getTextTrim());
 					path.setInterval(interval);
-					path.setMax(max);
 					
+					if(sMax != null)
+						path.setMax(Integer.valueOf(sMax));
+					
+					pathRunningCounts.putIfAbsent(key, new AtomicInteger());
 					profile.addPath(path);
-					//System.out.println(ePath.asXML());
 				}
 				
 				profiles.put(profile.getTag(), profile);
-				//System.out.println(e.asXML());
 			}
 			
-			//System.out.println(doc.asXML());
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -185,10 +194,7 @@ public class CronFireSettings {
 							Entry<String,EndpointPath> entry = i.next();
 							EndpointPath path = entry.getValue();
 							
-							// [TODO] Max
-							//path.getMax()
-							
-							String suffix = path.getPath();
+							String suffix = path.getSuffix();
 							if(suffix.startsWith("/"))
 								suffix = suffix.substring(1);
 								
@@ -202,14 +208,11 @@ public class CronFireSettings {
 								endpoint = new EndpointUrl(url + suffix);
 							}
 							
-							endpoint.setInterval(path.getInterval());
+							endpoint.setPath(path);
 							
 							// Default to scheduling by delay into future
 							int secs = endpoint.getNextIntervalAsSecs();
 							endpoint.delayBySecs(secs);
-							
-							// [TODO] Max
-							// ...
 							
 							endpoints.put(url + path.getKey(), endpoint);
 							newEndpoints.add(url + path.getKey());
