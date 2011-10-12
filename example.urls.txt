@@ -1,4 +1,3 @@
 http://localhost/cerb5/
-#http://localhost/cerb5/example1/	slow
-#http://localhost/cerb5/example2/	maint8pm
-#http://localhost/cerb5/example3/	priority
+http://127.0.0.1/cerb5/
+http://192.168.50.104/cerb5/

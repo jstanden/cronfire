@@ -159,6 +159,9 @@ public class CronFireSettings {
 			while(br.ready()) {
 				String line = br.readLine();
 
+				if(0 == line.length())
+					continue;
+				
 				ArrayList<String> tokens = new ArrayList<String>(Arrays.asList(line.split("\\s+")));
 
 				if(0 == tokens.size())
