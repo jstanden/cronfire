@@ -6,9 +6,9 @@ import java.net.URLConnection;
 import java.net.UnknownHostException;
 
 import com.cronfire.CronFireSettings;
+import com.cronfire.endpoint.EndpointPath;
 import com.cronfire.endpoint.EndpointUrl;
 import com.cronfire.queue.CronFireQueue;
-import com.cronfire.settings.EndpointPath;
 
 public class UrlPingManager {
 	
@@ -36,14 +36,10 @@ public class UrlPingManager {
 					
 					// [TODO] Reschedule -- slow crons should be bumped in queue (keep an average)
 					endpoint.delayBySecs(endpoint.getNextIntervalAsSecs());
-					queue.add(endpoint);
 					
 				} catch(UnknownHostException e) {
 					// [TODO] Don't requeue if the host is invalid
 					//System.out.println("Invalid URL in rotation: " + endpoint.getUrl());
-					
-					//endpoint.delayBySecs(3600);
-					//queue.add(endpoint);
 					
 				} catch(Exception e) {
 					e.printStackTrace();
@@ -51,12 +47,25 @@ public class UrlPingManager {
 				} finally {
 					endpoint.setRunning(false);
 					
-					EndpointPath path = endpoint.getPath();
-					
-					path.getRunCounter().decrementAndGet();
 					
 					try {
-						CronFireSettings.getPathRunningCounts().get(path.getKey()).decrementAndGet();
+						DelayQueue<EndpointUrl> hostQueue = endpoint.getHost().getQueue();
+						
+						// Schedule the next job from the host
+						if(!hostQueue.isEmpty()) {
+							EndpointUrl nextEndpoint = hostQueue.peek();
+							hostQueue.remove(nextEndpoint);
+							queue.getQueue().add(nextEndpoint);
+						}
+						
+						EndpointPath path = endpoint.getPath();
+						path.getRunCounter().decrementAndGet();
+						
+						try {
+							CronFireSettings.getPathRunningCounts().get(path.getKey()).decrementAndGet();
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
 					} catch(Exception e) {
 						e.printStackTrace();
 					}

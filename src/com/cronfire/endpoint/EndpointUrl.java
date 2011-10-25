@@ -8,14 +8,13 @@ import org.joda.time.DateTime;
 import org.joda.time.MutableDateTime;
 
 import com.cronfire.CronFireSettings;
-import com.cronfire.settings.EndpointPath;
 
 public class EndpointUrl implements Delayed {
 	private long delayUntil;
 	
 	private String url;
+	private EndpointHost host;
 	private EndpointPath path;
-	// [TODO] Tags
 	
 	private boolean isRunning = false;
 	
@@ -23,8 +22,6 @@ public class EndpointUrl implements Delayed {
 	private long cumulativeRuntimeMs = 0L;
 	
 	private final Date dateTime;
-	
-	// [TODO] Can run parallel?
 	
 	public EndpointUrl(String url) {
 		this.url = url;
@@ -45,6 +42,14 @@ public class EndpointUrl implements Delayed {
 	
 	public String getUrl() {
 		return url;
+	}
+
+	public EndpointHost getHost() {
+		return host;
+	}
+	
+	public void setHost(EndpointHost host) {
+		this.host = host;
 	}
 	
 	public EndpointPath getPath() {
@@ -113,7 +118,6 @@ public class EndpointUrl implements Delayed {
 		}
 	}	
 	
-	@Override
 	public int compareTo(Delayed delayed) {
 		EndpointUrl endpoint = (EndpointUrl)delayed;
 	      if (this.delayUntil < endpoint.delayUntil)
@@ -143,7 +147,6 @@ public class EndpointUrl implements Delayed {
 		return cumulativeHits;
 	}
 	
-	@Override
 	public long getDelay(TimeUnit timeUnit) {
 		return timeUnit.convert(this.delayUntil - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
 	}

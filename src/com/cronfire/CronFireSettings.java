@@ -18,14 +18,16 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import com.cronfire.endpoint.EndpointHost;
+import com.cronfire.endpoint.EndpointPath;
+import com.cronfire.endpoint.EndpointProfile;
 import com.cronfire.endpoint.EndpointUrl;
 import com.cronfire.queue.CronFireQueue;
-import com.cronfire.settings.EndpointPath;
-import com.cronfire.settings.EndpointProfile;
 
 public class CronFireSettings {
-	private static HashMap<String, EndpointUrl> endpoints = new HashMap<String, EndpointUrl>(); 
 	private static HashMap<String, String> settings = new HashMap<String, String>();
+	private static HashMap<String, EndpointHost> hosts = new HashMap<String, EndpointHost>(); 
+	private static HashMap<String, EndpointUrl> endpoints = new HashMap<String, EndpointUrl>(); 
 	private static HashMap<String, EndpointProfile> profiles = new HashMap<String, EndpointProfile>();
 	private static ConcurrentHashMap<String, AtomicInteger> pathRunningCounts = new ConcurrentHashMap<String, AtomicInteger>();
 	
@@ -75,6 +77,10 @@ public class CronFireSettings {
 	
 	public static void setSetting(String key, String value) {
 		settings.put(key, value);
+	}
+	
+	public static HashMap<String, EndpointHost> getHosts() {
+		return hosts;
 	}
 	
 	public static HashMap<String, EndpointUrl> getEndpoints() {
@@ -178,6 +184,10 @@ public class CronFireSettings {
 				if(url.startsWith("#"))
 					continue;
 
+				// Store the host
+				EndpointHost host = new EndpointHost(url);
+				hosts.put(url, host);
+				
 				if(!tokens.contains("defaults"))
 					tokens.add(0, "defaults");
 				
@@ -206,11 +216,12 @@ public class CronFireSettings {
 							if(endpoints.containsKey(url + path.getKey())) {
 								endpoint = endpoints.get(url + path.getKey());
 								endpoint.setUrl(url + suffix);
-								queue.remove(endpoint); // we may reschedule
+								queue.getQueue().remove(endpoint); // we may reschedule
 							} else {
 								endpoint = new EndpointUrl(url + suffix);
 							}
 							
+							endpoint.setHost(host);
 							endpoint.setPath(path);
 							
 							// Default to scheduling by delay into future
@@ -220,7 +231,7 @@ public class CronFireSettings {
 							endpoints.put(url + path.getKey(), endpoint);
 							newEndpoints.add(url + path.getKey());
 							
-							queue.add(endpoint);
+							host.getQueue().add(endpoint);
 						}
 					}
 					
@@ -237,7 +248,21 @@ public class CronFireSettings {
 				// If the endpoint has been dynamically removed
 				if(!newEndpoints.contains(key)) {
 					i.remove();
-					queue.remove(endpoint);
+					endpoint.getHost().getQueue().remove(endpoint);
+					queue.getQueue().remove(endpoint);
+				}
+			}
+
+			// Loop through hosts and add the next queue item to master queue
+			for(Iterator<Entry<String,EndpointHost>> i = hosts.entrySet().iterator(); i.hasNext(); ) {
+				Entry<String,EndpointHost> entry = i.next();
+				EndpointHost host = entry.getValue();
+				
+				// Queue the next available item
+				if(!host.getQueue().isEmpty()) {
+					EndpointUrl endpoint = host.getQueue().peek();
+					host.getQueue().remove(endpoint);
+					queue.getQueue().add(endpoint);
 				}
 			}
 			

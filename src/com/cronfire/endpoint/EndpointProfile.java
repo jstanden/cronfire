@@ -1,4 +1,4 @@
-package com.cronfire.settings;
+package com.cronfire.endpoint;
 
 import java.util.HashMap;
 
