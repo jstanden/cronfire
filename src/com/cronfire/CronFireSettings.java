@@ -96,10 +96,11 @@ public class CronFireSettings {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public static void loadConfigFile(String filename) {
+	public static void loadConfigFile(String fileName) {
+		settings.put("config_file", fileName);
 		try {
 			SAXReader reader = new SAXReader();
-			Document doc = reader.read(new File(filename));
+			Document doc = reader.read(new File(fileName));
 			List list;
 			
 			// Settings
@@ -150,6 +151,7 @@ public class CronFireSettings {
 	}
 	
 	public static void loadUrls(String fileName) {
+		settings.put("urls_file", fileName);
 		File file = new File(fileName);
 		CronFireQueue queue = CronFireQueue.getInstance();
 		
@@ -198,8 +200,6 @@ public class CronFireSettings {
 						continue;
 					
 					if(profiles.containsKey(tag)) {
-						//System.out.println(tag + " is a valid profile...");
-						
 						EndpointProfile profile = profiles.get(tag);
 						
 						Iterator<Entry<String,EndpointPath>> i = profile.getPaths().entrySet().iterator();

@@ -18,8 +18,13 @@ public class CronFire {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		CronFireSettings.loadConfigFile("example.config.xml");
-		CronFireSettings.loadUrls("example.urls.txt");
+		if(2 != args.length) {
+			System.err.println("Usage: cronfire.jar <config.xml> <hosts.txt>");
+			System.exit(1);
+		}
+		
+		CronFireSettings.loadConfigFile(args[0]);
+		CronFireSettings.loadUrls(args[1]);
 		
 		LoadManager loadManager = LoadManager.getInstance();
 		loadManager.start();
