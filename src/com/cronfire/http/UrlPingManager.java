@@ -4,6 +4,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.util.concurrent.DelayQueue;
 
 import com.cronfire.CronFireSettings;
 import com.cronfire.endpoint.EndpointPath;
@@ -51,6 +52,11 @@ public class UrlPingManager {
 					try {
 						DelayQueue<EndpointUrl> hostQueue = endpoint.getHost().getQueue();
 						
+						// Add the endpoint back to the host's queue
+						if(!endpoint.isMissing()) {
+							hostQueue.add(endpoint);
+						}
+						
 						// Schedule the next job from the host
 						if(!hostQueue.isEmpty()) {
 							EndpointUrl nextEndpoint = hostQueue.peek();
@@ -66,6 +72,7 @@ public class UrlPingManager {
 						} catch(Exception e) {
 							e.printStackTrace();
 						}
+						
 					} catch(Exception e) {
 						e.printStackTrace();
 					}

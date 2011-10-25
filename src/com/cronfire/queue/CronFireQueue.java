@@ -1,15 +1,14 @@
 package com.cronfire.queue;
 
-import java.util.Iterator;
 import java.util.concurrent.DelayQueue;
 
 import org.apache.log4j.Logger;
 
 import com.cronfire.CronFireSettings;
+import com.cronfire.endpoint.EndpointPath;
 import com.cronfire.endpoint.EndpointUrl;
 import com.cronfire.http.UrlPingManager;
 import com.cronfire.load_manager.LoadManager;
-import com.cronfire.settings.EndpointPath;
 
 public class CronFireQueue {
 	static private CronFireQueue instance;
@@ -26,23 +25,11 @@ public class CronFireQueue {
 		return instance;
 	}
 	
+	public DelayQueue<EndpointUrl> getQueue() {
+		return queue;
+	}
+	
 	private CronFireQueue() { /* No instantiation */ }
-	
-	public void add(EndpointUrl endpoint) {
-		if(!queue.contains(endpoint)) {
-			queue.add(endpoint);
-		}
-	}
-	
-	public void remove(EndpointUrl endpoint) {
-		if(queue.contains(endpoint)) {
-			queue.remove(endpoint);
-		}
-	}
-	
-	public Iterator<EndpointUrl> iterator() {
-		return queue.iterator();
-	}
 	
 	public boolean isPaused() {
 		return this.isPaused;
