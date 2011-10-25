@@ -62,7 +62,7 @@ public class ListCommand implements Command {
 			
 			// Filtering?
 			boolean showOutput = true;
-			if(!filter.isEmpty()) {
+			if(filter.length() > 0) {
 				// Inverse grep
 				if(filter.startsWith("!") && filter.length() > 1) {
 					if(out.contains(filter.substring(1)))

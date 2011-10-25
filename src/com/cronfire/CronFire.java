@@ -31,7 +31,7 @@ public class CronFire {
 		
 		try {
 			String log_file = CronFireSettings.getSetting("log_file","");
-			if(log_file.isEmpty()) {
+			if(0 == log_file.length()) {
 				logger.addAppender(new NullAppender());
 			} else {
 				logger.addAppender(new FileAppender(new PatternLayout(), log_file));
@@ -58,8 +58,7 @@ public class CronFire {
 			try {
 				token = scanner.next();
 
-				if(token.isEmpty()) {
-					System.out.println("Empty");
+				if(0 == token.length()) {
 					continue;
 				}
 				

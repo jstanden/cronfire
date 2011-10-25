@@ -97,7 +97,7 @@ public class EndpointUrl implements Delayed {
 					
 					if(2 != data.length)
 						throw new Exception();
-					
+
 					MutableDateTime mdt = DateTime.now().toMutableDateTime();
 					mdt.setHourOfDay(new Integer(data[0]));
 					mdt.setMinuteOfHour(new Integer(data[1]));
