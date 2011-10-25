@@ -7,6 +7,7 @@ import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
+import java.util.Scanner;
 
 import com.cronfire.endpoint.EndpointUrl;
 import com.cronfire.load_manager.LoadManager;
@@ -33,107 +34,43 @@ public class CronFire {
 		queue.start();
 		
 		// [TODO] Relative start times (e.g. cron.maint=midnight)
+
+		// CLI
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		Scanner scanner = new Scanner(in);
+		String token = "";
 		
-		String input = "";
-		
-		// [TODO] Use scanner for token processing w/ arguments
-		while(!input.equalsIgnoreCase("quit") && !input.equalsIgnoreCase("exit")) {
+		while(true) {
 			System.out.print("> ");
-			BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 			try {
-				input = in.readLine();
+				token = scanner.next();
+
+				if(token.isEmpty()) {
+					System.out.println("Empty");
+					continue;
+				}
 				
-				if(input.equalsIgnoreCase("help")) {
-					System.out.println("HELP");
-					System.out.println("LIST");
-					System.out.println("LOAD");
-					System.out.println("STATS");
-					System.out.println("RELOAD");
-					System.out.println("RESUME");
-					System.out.println("PAUSE");
-					System.out.println("QUIT");
+				@SuppressWarnings("rawtypes")
+				Class commandClass = null;
+				
+				try {
+					commandClass = Class.forName("com.cronfire.commands." + WordUtils.capitalize(token) + "Command");
+					Command command = (Command) commandClass.newInstance();
+					Scanner command_args = new Scanner(scanner.nextLine().trim());
+					command.execute(command_args);
+					command_args.close();
 					
-				} else if(input.equalsIgnoreCase("list")) {
-					// [TODO] sort
-					
-					for(Iterator<Entry<String,EndpointUrl>> i = CronFireSettings.getEndpoints().entrySet().iterator(); i.hasNext(); ) {
-						Entry<String,EndpointUrl> entry = i.next();
-						EndpointUrl endpoint = entry.getValue();
-						
-						String url = endpoint.getUrl();
-						
-						// Strip query args // [TODO] Verbose
-						if(-1 != url.lastIndexOf("?"))
-							url = url.substring(0,url.lastIndexOf("?"));
-						
-						System.out.print("* " + url);
-						
-						if(endpoint.isRunning()) {
-							System.out.print(" [running] ");
-						} else if(queue.isPaused()) {
-							System.out.print(" [paused] ");
-						} else {
-							long secs = endpoint.getDelay(TimeUnit.SECONDS);
-							
-							if(secs > 0) {
-								System.out.print(" [" + secs + "s] "); 
-							} else {
-								System.out.print(" [waiting] ");
-							}
-						}
-						
-						System.out.print(endpoint.getAverageRuntime() + "ms (n=" + endpoint.getRunCount() + ")");
-						System.out.println();
-					}
-					
-				} else if(input.equalsIgnoreCase("load")) {
-					LoadManager loadavg = LoadManager.getInstance();
-					
-					// Formatters
-					NumberFormat loadFormatter;					
-					loadFormatter = DecimalFormat.getNumberInstance();
-					loadFormatter.setMaximumFractionDigits(2);
-					
-					System.out.println(
-						"Current Load: " + loadFormatter.format(loadavg.getCurrentLoad()) 
-						+ " (throttle: " + CronFireSettings.getSettingDouble("loadavg_throttle", 5.0) + ")"
-					);
-					
-				} else if(input.equalsIgnoreCase("reload")) {
-					// Reload config and URL files (merge changes)
-					queue.empty();
-					CronFireSettings.getPathRunningCounts().clear();
-					// [TODO] these URLs need to come from settings
-					CronFireSettings.loadConfigFile("example.config.xml");
-					CronFireSettings.loadUrls("example.urls.txt");
-					System.out.println("Reloaded...");
-					
-				} else if(input.equalsIgnoreCase("pause") || input.equalsIgnoreCase("stop")) {
-					queue.pause(true);
-					System.out.println("Paused.");
-					
-				} else if(input.equalsIgnoreCase("resume") || input.equalsIgnoreCase("start")) {
-					queue.pause(false);
-					System.out.println("Resumed.");
-					
-				} else if(input.equalsIgnoreCase("stats")) {
-					int maxThreads = CronFireSettings.getSettingInt("max_http_threads", 10);
-					int numThreads = Thread.activeCount() - 3; // Compensate for built-in
-					
-					System.out.println("Threads: " + numThreads + " / " + maxThreads);
-					
-				} else if(input.equalsIgnoreCase("quit") || input.equalsIgnoreCase("exit")) {
-					
-				} else {
-					System.out.println("Unknown command: " + input);
+				} catch(ClassNotFoundException cnfe) {
+					System.out.println("Unknown command: " + token);
+					token = "";
+					scanner.nextLine();
+					continue;
 				}
 				
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
 		}
-		
-		System.exit(0);
 	}
 
 }
