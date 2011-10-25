@@ -17,6 +17,7 @@ public class EndpointUrl implements Delayed {
 	private EndpointPath path;
 	
 	private boolean isRunning = false;
+	private boolean isMissing = false;
 	
 	private long cumulativeHits = 0L;
 	private long cumulativeRuntimeMs = 0L;
@@ -26,6 +27,14 @@ public class EndpointUrl implements Delayed {
 	public EndpointUrl(String url) {
 		this.url = url;
 		this.dateTime = new Date();
+	}
+	
+	public void setMissing(boolean b) {
+		this.isMissing = b;
+	}
+	
+	public boolean isMissing() {
+		return this.isMissing;
 	}
 	
 	public void setRunning(boolean b) {
