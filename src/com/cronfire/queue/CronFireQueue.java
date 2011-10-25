@@ -3,6 +3,8 @@ package com.cronfire.queue;
 import java.util.Iterator;
 import java.util.concurrent.DelayQueue;
 
+import org.apache.log4j.Logger;
+
 import com.cronfire.CronFireSettings;
 import com.cronfire.endpoint.EndpointUrl;
 import com.cronfire.http.UrlPingManager;
@@ -11,6 +13,7 @@ import com.cronfire.settings.EndpointPath;
 
 public class CronFireQueue {
 	static private CronFireQueue instance;
+	static Logger logger = Logger.getLogger("com.cronfire");
 	
 	private boolean isPaused = false;
 	private DelayQueue<EndpointUrl> queue = new DelayQueue<EndpointUrl>();
@@ -104,6 +107,10 @@ public class CronFireQueue {
 						} catch(Exception e) {
 							e.printStackTrace();
 						}
+						
+						// Logging
+						logger.info((System.currentTimeMillis()/1000) + " " + endpoint.getUrl());
+						
 						UrlPingManager.pingUrl(endpoint);
 						
 					} catch (Exception e) {

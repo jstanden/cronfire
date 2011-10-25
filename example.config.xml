@@ -3,6 +3,7 @@
 		<setting key="interval_default">300</setting>
 		<setting key="loadavg_poll_secs">30</setting>
 		<setting key="loadavg_throttle">5.0</setting>
+		<setting key="log_file">cronfire.log</setting>
 		<setting key="max_http_threads">15</setting>
 	</settings>
 

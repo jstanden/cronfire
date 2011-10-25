@@ -10,10 +10,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.Scanner;
 
 import com.cronfire.endpoint.EndpointUrl;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.varia.NullAppender;
 import com.cronfire.load_manager.LoadManager;
 import com.cronfire.queue.CronFireQueue;
 
 public class CronFire {
+	static Logger logger = Logger.getLogger("com.cronfire");
 
 	/**
 	 * @param args
@@ -26,6 +31,17 @@ public class CronFire {
 		
 		CronFireSettings.loadConfigFile(args[0]);
 		CronFireSettings.loadUrls(args[1]);
+		
+		try {
+			String log_file = CronFireSettings.getSetting("log_file","");
+			if(log_file.isEmpty()) {
+				logger.addAppender(new NullAppender());
+			} else {
+				logger.addAppender(new FileAppender(new PatternLayout(), log_file));
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 		
 		LoadManager loadManager = LoadManager.getInstance();
 		loadManager.start();
