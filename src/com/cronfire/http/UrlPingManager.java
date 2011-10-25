@@ -18,6 +18,8 @@ public class UrlPingManager {
 
 		new Thread(new Runnable() {
 			public void run() {
+				URLConnection connection = null;
+				
 				try {
 					endpoint.setRunning(true);
 					
@@ -25,8 +27,9 @@ public class UrlPingManager {
 					
 					String url = endpoint.getUrl();
 					
-					URLConnection connection = new URL(url).openConnection();
-					
+					connection = new URL(url).openConnection();
+					((HttpURLConnection) connection).setInstanceFollowRedirects(true);
+					//connection.setConnectTimeout(timeout)
 					connection.connect();
 					
 					// [TODO] Check status code - this is used to block until the connection finishes
@@ -38,9 +41,13 @@ public class UrlPingManager {
 					// [TODO] Reschedule -- slow crons should be bumped in queue (keep an average)
 					endpoint.delayBySecs(endpoint.getNextIntervalAsSecs());
 					
+					//SocketTimeoutException
+					
 				} catch(UnknownHostException e) {
-					// [TODO] Don't requeue if the host is invalid
+					// [TODO] Log!!
 					//System.out.println("Invalid URL in rotation: " + endpoint.getUrl());
+					endpoint.setMissing(true);
+					//CronFireSettings.getEndpoints().remove(endpoint.getUrl() + endpoint.getPath().getKey());
 					
 				} catch(Exception e) {
 					e.printStackTrace();
@@ -48,6 +55,11 @@ public class UrlPingManager {
 				} finally {
 					endpoint.setRunning(false);
 					
+					try {
+						((HttpURLConnection) connection).disconnect();
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
 					
 					try {
 						DelayQueue<EndpointUrl> hostQueue = endpoint.getHost().getQueue();
