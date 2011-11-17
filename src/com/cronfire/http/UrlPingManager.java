@@ -42,6 +42,7 @@ public class UrlPingManager {
 					endpoint.delayBySecs(endpoint.getNextIntervalAsSecs());
 					
 					//SocketTimeoutException
+					endpoint.setMissing(false);
 					
 				} catch(UnknownHostException e) {
 					// [TODO] Log!!
@@ -65,9 +66,7 @@ public class UrlPingManager {
 						DelayQueue<EndpointUrl> hostQueue = endpoint.getHost().getQueue();
 						
 						// Add the endpoint back to the host's queue
-						if(!endpoint.isMissing()) {
-							hostQueue.add(endpoint);
-						}
+						hostQueue.add(endpoint);
 						
 						// Schedule the next job from the host
 						if(!hostQueue.isEmpty()) {
