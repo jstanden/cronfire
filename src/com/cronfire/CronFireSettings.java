@@ -273,14 +273,18 @@ public class CronFireSettings {
 							
 							endpoints.put(url + path.getKey(), endpoint);
 							newEndpoints.add(url + path.getKey());
-							
-							host.getQueue().add(endpoint);
 						}
 					}
 					
 				} // end tags
 				
 			} // end urls
+			
+			// Add endpoints to host queues after all tags are applied
+			for(EndpointUrl endpoint : endpoints.values()) {
+				EndpointHost host = endpoint.getHost();
+				host.getQueue().add(endpoint);
+			}
 			
 			// Scan old endpoints and delete any that no longer exist
 			for(Iterator<Entry<String,EndpointUrl>> i = endpoints.entrySet().iterator(); i.hasNext(); ) {

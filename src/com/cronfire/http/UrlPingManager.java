@@ -38,9 +38,6 @@ public class UrlPingManager {
 					
 					endpoint.logRuntime(System.currentTimeMillis() - startTime);
 					
-					// [TODO] Reschedule -- slow crons should be bumped in queue (keep an average)
-					endpoint.delayBySecs(endpoint.getNextIntervalAsSecs());
-					
 					//SocketTimeoutException
 					endpoint.setMissing(false);
 					
@@ -48,12 +45,14 @@ public class UrlPingManager {
 					// [TODO] Log!!
 					//System.out.println("Invalid URL in rotation: " + endpoint.getUrl());
 					endpoint.setMissing(true);
+					
 					//CronFireSettings.getEndpoints().remove(endpoint.getUrl() + endpoint.getPath().getKey());
 					
 				} catch(Exception e) {
 					e.printStackTrace();
 					
 				} finally {
+					endpoint.delayBySecs(endpoint.getNextIntervalAsSecs());
 					endpoint.setRunning(false);
 					
 					try {
