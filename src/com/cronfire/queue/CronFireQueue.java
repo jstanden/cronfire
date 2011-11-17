@@ -75,8 +75,13 @@ public class CronFireQueue {
 
 						int max = endpoint.getPath().getMax();
 						
-						if(max > 0) {						
-							int count = CronFireSettings.getPathRunningCounts().get(endpoint.getPath().getKey()).get();
+						if(max > 0) {
+							int count = 0;
+							try {
+								count = CronFireSettings.getPathRunningCounts().get(endpoint.getPath().getKey()).get();
+							} catch(NullPointerException npe) {
+								npe.printStackTrace();
+							}
 							
 							//System.out.print(count + " / " + max + " " + endpoint.getPath().getKey() + " " + endpoint.getPath().getTag() + "... ");
 							
@@ -91,8 +96,8 @@ public class CronFireQueue {
 						path.getRunCounter().incrementAndGet();
 						try {
 							CronFireSettings.getPathRunningCounts().get(path.getKey()).incrementAndGet();
-						} catch(Exception e) {
-							e.printStackTrace();
+						} catch(NullPointerException npe) {
+							npe.printStackTrace();
 						}
 						
 						// Logging

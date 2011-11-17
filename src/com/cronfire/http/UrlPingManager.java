@@ -80,8 +80,8 @@ public class UrlPingManager {
 						
 						try {
 							CronFireSettings.getPathRunningCounts().get(path.getKey()).decrementAndGet();
-						} catch(Exception e) {
-							e.printStackTrace();
+						} catch(NullPointerException npe) {
+							npe.printStackTrace();
 						}
 						
 					} catch(Exception e) {

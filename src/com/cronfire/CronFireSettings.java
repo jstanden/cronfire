@@ -45,12 +45,42 @@ public class CronFireSettings {
 		return defaultValue;
 	}
 	
+	public static boolean getSettingBoolean(String key, boolean defaultValue) {
+		boolean val = false;
+		
+		if(settings.containsKey(key)) {
+			try {
+				val = Boolean.valueOf(settings.get(key)).booleanValue();
+			} catch(Exception e) {
+				val = false;
+				e.printStackTrace();
+			}
+		}
+		
+		return val;
+	}
+	
 	public static int getSettingInt(String key, int defaultValue) {
 		int val = 0;
 		
 		if(settings.containsKey(key)) {
 			try {
 				val = Integer.valueOf(settings.get(key)).intValue();
+			} catch(Exception e) {
+				val = 0;
+				e.printStackTrace();
+			}
+		}
+		
+		return val;
+	}
+	
+	public static long getSettingLong(String key, long defaultValue) {
+		long val = 0L;
+		
+		if(settings.containsKey(key)) {
+			try {
+				val = Long.valueOf(settings.get(key)).longValue();
 			} catch(Exception e) {
 				val = 0;
 				e.printStackTrace();
@@ -97,11 +127,19 @@ public class CronFireSettings {
 	
 	@SuppressWarnings("rawtypes")
 	public static void loadConfigFile(String fileName) {
+		profiles.clear();
+		pathRunningCounts.clear();
+		
 		settings.put("config_file", fileName);
+		
 		try {
 			SAXReader reader = new SAXReader();
-			Document doc = reader.read(new File(fileName));
+			File file = new File(fileName);
+			Document doc = reader.read(file);
 			List list;
+		
+			// Set mtime
+			settings.put("config_file_mtime", Long.toString(file.lastModified()));			
 			
 			// Settings
 			list = doc.selectNodes("//settings/setting");
@@ -151,9 +189,14 @@ public class CronFireSettings {
 	}
 	
 	public static void loadUrls(String fileName) {
+		hosts.clear();
+		
 		settings.put("urls_file", fileName);
 		File file = new File(fileName);
 		CronFireQueue queue = CronFireQueue.getInstance();
+		
+		// Set mtime
+		settings.put("urls_file_mtime", Long.toString(file.lastModified()));			
 		
 		if(!file.exists())
 			return;
