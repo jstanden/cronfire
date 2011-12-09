@@ -5,7 +5,7 @@ import java.io.InputStreamReader;
 import java.util.Scanner;
 
 import org.apache.commons.lang3.text.WordUtils;
-import org.apache.log4j.FileAppender;
+import org.apache.log4j.DailyRollingFileAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.varia.NullAppender;
@@ -34,7 +34,7 @@ public class CronFire {
 			if(0 == log_file.length()) {
 				logger.addAppender(new NullAppender());
 			} else {
-				logger.addAppender(new FileAppender(new PatternLayout(), log_file));
+				logger.addAppender(new DailyRollingFileAppender(new PatternLayout(), log_file, ".yyyy-MM-dd"));
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
