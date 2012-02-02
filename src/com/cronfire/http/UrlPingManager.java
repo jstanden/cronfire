@@ -1,6 +1,7 @@
 package com.cronfire.http;
 
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
@@ -29,7 +30,7 @@ public class UrlPingManager {
 					
 					connection = new URL(url).openConnection();
 					((HttpURLConnection) connection).setInstanceFollowRedirects(true);
-					//connection.setConnectTimeout(timeout)
+					connection.setConnectTimeout(300000); // 5 minutes
 					connection.connect();
 					
 					// [TODO] Check status code - this is used to block until the connection finishes
@@ -47,6 +48,9 @@ public class UrlPingManager {
 					endpoint.setMissing(true);
 					
 					//CronFireSettings.getEndpoints().remove(endpoint.getUrl() + endpoint.getPath().getKey());
+					
+				} catch(SocketTimeoutException e) {
+					e.printStackTrace();
 					
 				} catch(Exception e) {
 					e.printStackTrace();
