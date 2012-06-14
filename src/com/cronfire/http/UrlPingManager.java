@@ -30,7 +30,8 @@ public class UrlPingManager {
 					
 					connection = new URL(url).openConnection();
 					((HttpURLConnection) connection).setInstanceFollowRedirects(true);
-					connection.setConnectTimeout(300000); // 5 minutes
+					connection.setConnectTimeout(30000); // 30 sec
+					connection.setReadTimeout(300000); // 5 mins
 					connection.connect();
 					
 					// [TODO] Check status code - this is used to block until the connection finishes
@@ -50,6 +51,7 @@ public class UrlPingManager {
 					//CronFireSettings.getEndpoints().remove(endpoint.getUrl() + endpoint.getPath().getKey());
 					
 				} catch(SocketTimeoutException e) {
+					System.out.println("Killed slow HTTP thread for " + endpoint.getUrl());
 					e.printStackTrace();
 					
 				} catch(Exception e) {
